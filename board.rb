@@ -28,10 +28,10 @@ class Board
   def dup
     new_board = Board.new(false)
     self.pieces.each do |piece|
-      new_board[piece.pos]= Piece.new(piece.pos.dup, 
-                                      piece.color, 
-                                      new_board, 
-                                      piece.king)
+      new_board[piece.pos] = Piece.new(piece.pos.dup, 
+                                       piece.color, 
+                                       new_board, 
+                                       piece.king)
     end
 
     new_board

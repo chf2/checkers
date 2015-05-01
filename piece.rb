@@ -56,7 +56,6 @@ class Piece
 
   def perform_moves!(move_seq, board = @board)
     if move_seq.size == 1
-      p self
       board.display
       moved = perform_slide(move_seq[0], board) || perform_jump(move_seq[0], board)
       raise InvalidMoveError.new unless moved

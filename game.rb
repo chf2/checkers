@@ -1,6 +1,7 @@
 require_relative 'board'
 require_relative 'piece'
 require_relative 'human_player'
+require_relative 'computer_player'
 
 class CheckersGame
   def initialize(player1, player2)
@@ -58,5 +59,5 @@ class CheckersGame
 end
 
 if __FILE__ == $PROGRAM_NAME
-  CheckersGame.new(HumanPlayer.new, HumanPlayer.new(:red)).play
+  CheckersGame.new(HumanPlayer.new, ComputerPlayer.new).play
 end

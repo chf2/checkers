@@ -1,4 +1,3 @@
-require 'byebug'
 require_relative 'checkers_errors'
 require 'colorize.rb'
 
@@ -12,6 +11,16 @@ class Piece
     @pos, @color, @board, @king = pos, color, board, king
   end
 
+  def check_for_captures(board, friendly_pieces)
+    friendly_pieces.any? do |piece|
+      piece.moves.any? do |move|
+        if board[move] && board[move].is_opponent?(piece.color)
+          piece.valid_move_seq?([move])
+        end
+      end
+    end
+  end
+
   def check_for_promotion
     back_row = blue? ? 0 : 7
     @king = true if @pos[0] == back_row
@@ -19,6 +28,10 @@ class Piece
 
   def inspect
     @pos.inspect
+  end
+
+  def is_opponent?(color)
+    @color != color
   end
 
   def moves
@@ -59,6 +72,10 @@ class Piece
 
   def perform_slide(move_to, board = @board)
     return false unless board.empty?(move_to) && moves.include?(move_to)
+    friendly_pieces = board.pieces.select { |piece| piece.color == @color}
+    must_capture = check_for_captures(board, friendly_pieces)
+    return false if must_capture
+    
     board[move_to], board[@pos] = self, nil
     @pos = move_to
     check_for_promotion
@@ -70,11 +87,11 @@ class Piece
     return false unless piece_to_jump && piece_to_jump.color != @color
     return false unless moves.include?(move_over)
     
-    new_position = [2 * move_over[0] - @pos[0], 2 * move_over[1] - @pos[1]]
-    return false unless board.empty?(new_position)
+    new_pos = [2 * move_over[0] - @pos[0], 2 * move_over[1] - @pos[1]]
+    return false unless board.empty?(new_pos) && board.in_bounds?(new_pos)
 
-    board[@pos], board[move_over], board[new_position] = nil, nil, self
-    @pos, piece_to_jump.pos = new_position, nil
+    board[@pos], board[move_over], board[new_pos] = nil, nil, self
+    @pos, piece_to_jump.pos = new_pos, nil
     check_for_promotion
     true
   end

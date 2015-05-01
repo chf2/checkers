@@ -1,4 +1,3 @@
-require_relative 'placeholder'
 require_relative 'board'
 require_relative 'piece'
 require_relative 'human_player'
@@ -18,6 +17,8 @@ class CheckersGame
     @board.display
   end
 
+  private
+
   def over?
     if @board.pieces.none?{ |piece| piece.color == :blue }
       system('clear')
@@ -36,12 +37,7 @@ class CheckersGame
     if selected_piece.color != @current_player.color
       raise InvalidMoveError.new "Please choose your own piece."
     end
-
     [selected_piece, move_seq]
-  end
-
-  def switch_turn
-    @current_player = @current_player == @player1 ? @player2 : @player1
   end
 
   def take_turn
@@ -53,6 +49,10 @@ class CheckersGame
       puts e.message
       retry
     end
+  end
+
+  def switch_turn
+    @current_player = @current_player == @player1 ? @player2 : @player1
   end
 
 end

@@ -10,24 +10,13 @@ class HumanPlayer
     @color = color
   end
 
-  def handle_display(board, message)
-    system('clear')
-    puts "It's #{@color}'s turn."
-    board.display
-    puts INSTRUCTION_STRING
-    puts message if message != ""
-    message = ""
-  end
-
   def get_move(board)
-    board.cursor_display = nil
-    board.cursor ||= [7,0]
+    set_board_cursor_parameters(board)
     moves, message, move_completed = [], "", false
     until move_completed
       begin
         handle_display(board, message)
-        input = $stdin.getch.downcase
-        raise InvalidEntryError.new unless input =~ /[asdwxkl]/
+        input = get_user_input
         case input
         when 'a'
           board.cursor[1] -= 1 unless board.cursor[1] == 0
@@ -41,13 +30,16 @@ class HumanPlayer
           raise_errors_on_bad_k_input(board, moves)
           board.cursor_display ||= board[board.cursor].render 
           moves << board.cursor.dup
-          board[board.cursor] = Placeholder.new
-          move_completed = true if board.empty?(board.cursor)
+          if board.empty?(board.cursor)
+            move_completed = true
+          elsif moves.size > 1
+            message = "#{moves.size - 1} move(s) queued."
+          end
         when 'l'
           if moves.size >= 2
             move_completed = true
           else
-            raise InvalidSelectionError.new "Valid move sequence not entered."
+            raise InvalidSelectionError.new "Start, end not selected."
           end
         when 'x'
           exit
@@ -66,6 +58,23 @@ class HumanPlayer
     moves
   end
 
+  private
+
+  def get_user_input
+    input = $stdin.getch.downcase
+    raise InvalidEntryError.new unless input =~ /[asdwxkl]/
+    input
+  end
+
+  def handle_display(board, message)
+    system('clear')
+    puts "It's #{@color}'s turn."
+    board.display
+    puts INSTRUCTION_STRING
+    puts message if message != ""
+    message = ""
+  end
+
   def raise_errors_on_bad_k_input(board, moves)
     if moves.empty?
       if board.empty?(board.cursor)
@@ -74,6 +83,11 @@ class HumanPlayer
         raise InvalidSelectionError.new "Please select your own piece."
       end
     end
+  end
+
+  def set_board_cursor_parameters(board)
+    board.cursor_display = nil
+    board.cursor ||= [7,0]
   end
 
 end
